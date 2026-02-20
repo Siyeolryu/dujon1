@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>현장관리 대시보드</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <!-- 사이드바 -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <div class="logo-icon">⚡</div>
+        <span class="logo-text">현장관리</span>
+      </div>
+      <button class="sidebar-toggle" id="sidebarToggle">&#9776;</button>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <span class="nav-label">메인</span>
+        <a class="nav-item active" data-page="dashboard" href="#">
+          <span class="nav-icon">🏠</span><span class="nav-text">대시보드</span>
+        </a>
+      </div>
+      <div class="nav-section">
+        <span class="nav-label">관리</span>
+        <a class="nav-item" data-page="sites" href="#">
+          <span class="nav-icon">🏗️</span><span class="nav-text">현장 목록</span>
+        </a>
+        <a class="nav-item" data-page="staff" href="#">
+          <span class="nav-icon">👷</span><span class="nav-text">소장/직원</span>
+        </a>
+        <a class="nav-item" data-page="assign" href="#">
+          <span class="nav-icon">🔀</span><span class="nav-text">빠른 배정</span>
+          <span class="badge" id="unassignedBadge">0</span>
+        </a>
+        <a class="nav-item" data-page="schedule" href="#">
+          <span class="nav-icon">📅</span><span class="nav-text">공정/일정</span>
+        </a>
+      </div>
+      <div class="nav-section">
+        <span class="nav-label">데이터</span>
+        <a class="nav-item" data-page="export" href="#">
+          <span class="nav-icon">📊</span><span class="nav-text">엑셀 관리</span>
+        </a>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar">관</div>
+        <div class="user-detail">
+          <span class="user-name">관리자</span>
+          <span class="user-role">시스템 관리자</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- 메인 콘텐츠 -->
+  <main class="main-content" id="mainContent">
+    <!-- 상단 헤더 -->
+    <header class="top-header">
+      <div class="header-left">
+        <h1 class="page-title" id="pageTitle">대시보드</h1>
+        <span class="breadcrumb" id="breadcrumb">홈 / 대시보드</span>
+      </div>
+      <div class="header-right">
+        <div class="header-date" id="headerDate"></div>
+        <button class="btn btn-primary btn-sm" onclick="App.exportToExcel()">
+          📥 엑셀 저장
+        </button>
+      </div>
+    </header>
+
+    <!-- 페이지 컨테이너 -->
+    <div class="page-container">
+      <!-- 대시보드 페이지 -->
+      <div class="page" id="page-dashboard">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg,#667eea,#764ba2)">🏗️</div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-sites">0</div>
+              <div class="stat-label">전체 현장</div>
+            </div>
+            <div class="stat-trend up" id="stat-sites-active">진행 0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg,#f093fb,#f5576c)">👷</div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-staff">0</div>
+              <div class="stat-label">전체 소장/직원</div>
+            </div>
+            <div class="stat-trend up" id="stat-staff-assigned">배정 0명</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg,#4facfe,#00f2fe)">🔀</div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-assigned">0</div>
+              <div class="stat-label">배정 현장</div>
+            </div>
+            <div class="stat-trend down" id="stat-unassigned">미배정 0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg,#43e97b,#38f9d7)">📈</div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-progress">0%</div>
+              <div class="stat-label">평균 공정률</div>
+            </div>
+            <div class="stat-trend up" id="stat-ontime">일정 준수</div>
+          </div>
+        </div>
+
+        <div class="charts-grid">
+          <div class="chart-card">
+            <div class="chart-header">
+              <h3>현장 공정 현황</h3>
+              <span class="chart-sub">공정별 진행률</span>
+            </div>
+            <div class="chart-wrap">
+              <canvas id="progressChart"></canvas>
+            </div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-header">
+              <h3>배정 현황</h3>
+              <span class="chart-sub">소장 배정 비율</span>
+            </div>
+            <div class="chart-wrap" style="max-width:280px;margin:0 auto">
+              <canvas id="assignChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-card">
+          <div class="table-header">
+            <h3>최근 현장 현황</h3>
+            <button class="btn btn-outline btn-sm" onclick="App.navigate('sites')">전체보기</button>
+          </div>
+          <div class="table-scroll">
+            <table class="data-table" id="dashboardTable">
+              <thead>
+                <tr>
+                  <th>현장명</th><th>위치</th><th>소장</th><th>공정률</th><th>상태</th><th>준공예정</th>
+                </tr>
+              </thead>
+              <tbody id="dashboardTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 현장 목록 페이지 -->
+      <div class="page hidden" id="page-sites">
+        <div class="toolbar">
+          <div class="toolbar-left">
+            <input class="search-input" id="siteSearch" placeholder="현장 검색..." type="text" />
+            <select class="filter-select" id="siteStatusFilter">
+              <option value="">전체 상태</option>
+              <option value="진행">진행</option>
+              <option value="완료">완료</option>
+              <option value="대기">대기</option>
+              <option value="중단">중단</option>
+            </select>
+          </div>
+          <div class="toolbar-right">
+            <button class="btn btn-primary" onclick="SitesPage.openModal()">+ 현장 추가</button>
+          </div>
+        </div>
+        <div class="table-card">
+          <div class="table-scroll">
+            <table class="data-table" id="sitesTable">
+              <thead>
+                <tr>
+                  <th>현장명</th><th>위치</th><th>발주처</th><th>소장</th>
+                  <th>공정률</th><th>상태</th><th>착공일</th><th>준공예정</th><th>액션</th>
+                </tr>
+              </thead>
+              <tbody id="sitesTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 소장/직원 목록 페이지 -->
+      <div class="page hidden" id="page-staff">
+        <div class="toolbar">
+          <div class="toolbar-left">
+            <input class="search-input" id="staffSearch" placeholder="직원 검색..." type="text" />
+            <select class="filter-select" id="staffRoleFilter">
+              <option value="">전체 직급</option>
+              <option value="소장">소장</option>
+              <option value="부소장">부소장</option>
+              <option value="현장대리인">현장대리인</option>
+              <option value="안전관리자">안전관리자</option>
+              <option value="직원">직원</option>
+            </select>
+          </div>
+          <div class="toolbar-right">
+            <button class="btn btn-primary" onclick="StaffPage.openModal()">+ 직원 추가</button>
+          </div>
+        </div>
+        <div class="table-card">
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>이름</th><th>직급</th><th>연락처</th><th>자격증</th>
+                  <th>배정현장</th><th>상태</th><th>입사일</th><th>액션</th>
+                </tr>
+              </thead>
+              <tbody id="staffTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 빠른 배정 페이지 -->
+      <div class="page hidden" id="page-assign">
+        <div class="assign-layout">
+          <!-- 소장 풀 -->
+          <div class="assign-panel">
+            <div class="assign-panel-header">
+              <h3>👷 소장 / 직원 목록</h3>
+              <span class="assign-count" id="availableCount">0명 가용</span>
+            </div>
+            <div class="assign-search">
+              <input class="search-input" id="assignStaffSearch" placeholder="직원 검색..." type="text" />
+            </div>
+            <div class="staff-pool" id="staffPool"></div>
+          </div>
+
+          <!-- 화살표 -->
+          <div class="assign-arrow">
+            <div class="arrow-guide">
+              <div class="arrow-icon">⇄</div>
+              <p>드래그하여<br>배정하세요</p>
+            </div>
+          </div>
+
+          <!-- 현장 패널 -->
+          <div class="assign-panel assign-panel-sites">
+            <div class="assign-panel-header">
+              <h3>🏗️ 현장 목록</h3>
+              <div class="assign-filter">
+                <select class="filter-select" id="assignSiteFilter">
+                  <option value="">전체</option>
+                  <option value="미배정">미배정만</option>
+                  <option value="진행">진행 중</option>
+                </select>
+              </div>
+            </div>
+            <div class="site-cards" id="siteCards"></div>
+          </div>
+        </div>
+
+        <!-- 배정 현황 테이블 -->
+        <div class="table-card" style="margin-top:24px">
+          <div class="table-header">
+            <h3>배정 현황</h3>
+            <button class="btn btn-outline btn-sm" onclick="AssignPage.clearAll()">전체 배정 초기화</button>
+          </div>
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead>
+                <tr><th>현장명</th><th>위치</th><th>배정 소장/직원</th><th>직급</th><th>배정일</th><th>해제</th></tr>
+              </thead>
+              <tbody id="assignTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 공정/일정 관리 페이지 -->
+      <div class="page hidden" id="page-schedule">
+        <div class="toolbar">
+          <div class="toolbar-left">
+            <select class="filter-select" id="scheduleSiteFilter">
+              <option value="">현장 선택</option>
+            </select>
+          </div>
+          <div class="toolbar-right">
+            <button class="btn btn-primary" onclick="SchedulePage.openModal()">+ 일정 추가</button>
+          </div>
+        </div>
+        <div class="gantt-wrapper">
+          <div class="table-card">
+            <div class="table-header">
+              <h3>공정 일정</h3>
+            </div>
+            <div class="table-scroll">
+              <table class="data-table">
+                <thead>
+                  <tr><th>현장명</th><th>공정명</th><th>시작일</th><th>완료예정</th><th>진행률</th><th>담당자</th><th>상태</th><th>액션</th></tr>
+                </thead>
+                <tbody id="scheduleTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <!-- 간트 차트 영역 -->
+        <div class="table-card" style="margin-top:20px">
+          <div class="table-header"><h3>간트 차트</h3></div>
+          <div class="gantt-chart" id="ganttChart"></div>
+        </div>
+      </div>
+
+      <!-- 엑셀 관리 페이지 -->
+      <div class="page hidden" id="page-export">
+        <div class="export-grid">
+          <div class="export-card">
+            <div class="export-icon">📥</div>
+            <h3>데이터 내보내기</h3>
+            <p>현재 데이터를 엑셀 파일로 저장합니다.</p>
+            <div class="export-options">
+              <label class="checkbox-label"><input type="checkbox" id="exp-sites" checked /> 현장 목록</label>
+              <label class="checkbox-label"><input type="checkbox" id="exp-staff" checked /> 소장/직원</label>
+              <label class="checkbox-label"><input type="checkbox" id="exp-assign" checked /> 배정 현황</label>
+              <label class="checkbox-label"><input type="checkbox" id="exp-schedule" checked /> 공정/일정</label>
+            </div>
+            <button class="btn btn-primary btn-full" onclick="App.exportToExcel()">📊 엑셀로 저장</button>
+          </div>
+          <div class="export-card">
+            <div class="export-icon">📤</div>
+            <h3>데이터 가져오기</h3>
+            <p>엑셀 파일에서 데이터를 불러옵니다.</p>
+            <div class="upload-area" id="uploadArea">
+              <div class="upload-icon">📂</div>
+              <p>파일을 드래그하거나 클릭하여 선택</p>
+              <input type="file" id="fileInput" accept=".xlsx,.xls" style="display:none" />
+            </div>
+            <button class="btn btn-outline btn-full" onclick="document.getElementById('fileInput').click()">파일 선택</button>
+          </div>
+          <div class="export-card">
+            <div class="export-icon">🔄</div>
+            <h3>데이터 초기화</h3>
+            <p>샘플 데이터로 초기화합니다.</p>
+            <div class="reset-warning">⚠️ 현재 데이터가 모두 삭제됩니다.</div>
+            <button class="btn btn-danger btn-full" onclick="App.resetData()">초기 데이터 로드</button>
+          </div>
+        </div>
+        <div class="table-card" style="margin-top:24px">
+          <div class="table-header"><h3>저장 이력</h3></div>
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead><tr><th>저장 시간</th><th>파일명</th><th>데이터 수</th><th>작업자</th></tr></thead>
+              <tbody id="exportHistoryBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- 모달: 현장 추가/수정 -->
+  <div class="modal-overlay hidden" id="siteModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="siteModalTitle">현장 추가</h3>
+        <button class="modal-close" onclick="SitesPage.closeModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>현장명 *</label>
+            <input type="text" id="site-name" placeholder="현장명 입력" />
+          </div>
+          <div class="form-group">
+            <label>위치 *</label>
+            <input type="text" id="site-location" placeholder="주소 입력" />
+          </div>
+          <div class="form-group">
+            <label>발주처</label>
+            <input type="text" id="site-client" placeholder="발주처명" />
+          </div>
+          <div class="form-group">
+            <label>공사 금액 (억)</label>
+            <input type="number" id="site-amount" placeholder="0" />
+          </div>
+          <div class="form-group">
+            <label>착공일</label>
+            <input type="date" id="site-start" />
+          </div>
+          <div class="form-group">
+            <label>준공예정일</label>
+            <input type="date" id="site-end" />
+          </div>
+          <div class="form-group">
+            <label>공정률 (%)</label>
+            <input type="range" id="site-progress" min="0" max="100" value="0"
+              oninput="document.getElementById('site-progress-val').textContent=this.value+'%'" />
+            <span id="site-progress-val">0%</span>
+          </div>
+          <div class="form-group">
+            <label>상태</label>
+            <select id="site-status">
+              <option value="대기">대기</option>
+              <option value="진행">진행</option>
+              <option value="완료">완료</option>
+              <option value="중단">중단</option>
+            </select>
+          </div>
+          <div class="form-group full-width">
+            <label>비고</label>
+            <textarea id="site-note" placeholder="메모 입력" rows="2"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="SitesPage.closeModal()">취소</button>
+        <button class="btn btn-primary" onclick="SitesPage.saveSite()">저장</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 모달: 직원 추가/수정 -->
+  <div class="modal-overlay hidden" id="staffModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="staffModalTitle">직원 추가</h3>
+        <button class="modal-close" onclick="StaffPage.closeModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>이름 *</label>
+            <input type="text" id="staff-name" placeholder="이름 입력" />
+          </div>
+          <div class="form-group">
+            <label>직급 *</label>
+            <select id="staff-role">
+              <option value="소장">소장</option>
+              <option value="부소장">부소장</option>
+              <option value="현장대리인">현장대리인</option>
+              <option value="안전관리자">안전관리자</option>
+              <option value="직원">직원</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>연락처</label>
+            <input type="tel" id="staff-phone" placeholder="010-0000-0000" />
+          </div>
+          <div class="form-group">
+            <label>이메일</label>
+            <input type="email" id="staff-email" placeholder="email@example.com" />
+          </div>
+          <div class="form-group">
+            <label>자격증</label>
+            <input type="text" id="staff-cert" placeholder="보유 자격증" />
+          </div>
+          <div class="form-group">
+            <label>입사일</label>
+            <input type="date" id="staff-join" />
+          </div>
+          <div class="form-group">
+            <label>상태</label>
+            <select id="staff-status">
+              <option value="재직">재직</option>
+              <option value="휴직">휴직</option>
+              <option value="퇴직">퇴직</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="StaffPage.closeModal()">취소</button>
+        <button class="btn btn-primary" onclick="StaffPage.saveStaff()">저장</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 모달: 일정 추가/수정 -->
+  <div class="modal-overlay hidden" id="scheduleModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="scheduleModalTitle">일정 추가</h3>
+        <button class="modal-close" onclick="SchedulePage.closeModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>현장 *</label>
+            <select id="sched-site"></select>
+          </div>
+          <div class="form-group">
+            <label>공정명 *</label>
+            <input type="text" id="sched-name" placeholder="공정명 입력" />
+          </div>
+          <div class="form-group">
+            <label>시작일 *</label>
+            <input type="date" id="sched-start" />
+          </div>
+          <div class="form-group">
+            <label>완료예정 *</label>
+            <input type="date" id="sched-end" />
+          </div>
+          <div class="form-group">
+            <label>담당자</label>
+            <input type="text" id="sched-manager" placeholder="담당자명" />
+          </div>
+          <div class="form-group">
+            <label>진행률 (%)</label>
+            <input type="range" id="sched-progress" min="0" max="100" value="0"
+              oninput="document.getElementById('sched-progress-val').textContent=this.value+'%'" />
+            <span id="sched-progress-val">0%</span>
+          </div>
+          <div class="form-group">
+            <label>상태</label>
+            <select id="sched-status">
+              <option value="예정">예정</option>
+              <option value="진행">진행</option>
+              <option value="완료">완료</option>
+              <option value="지연">지연</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="SchedulePage.closeModal()">취소</button>
+        <button class="btn btn-primary" onclick="SchedulePage.saveSchedule()">저장</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 토스트 알림 -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/pages/dashboard.js"></script>
+  <script src="js/pages/sites.js"></script>
+  <script src="js/pages/staff.js"></script>
+  <script src="js/pages/assign.js"></script>
+  <script src="js/pages/schedule.js"></script>
+  <script src="js/pages/export.js"></script>
+</body>
+</html>
