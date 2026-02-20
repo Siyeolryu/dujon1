@@ -203,7 +203,7 @@ input, select, textarea { font-family: inherit; font-size: inherit; }
    통계 카드
    ============================================ */
 .stats-grid {
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
   margin-bottom: 24px;
 }
 .stat-card {

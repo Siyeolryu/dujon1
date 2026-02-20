@@ -7,7 +7,7 @@ const App = (() => {
     sites:     { title: '현장 목록', breadcrumb: '홈 / 현장 목록', init: () => SitesPage.init() },
     staff:     { title: '소장/직원', breadcrumb: '홈 / 소장·직원', init: () => StaffPage.init() },
     assign:    { title: '빠른 배정', breadcrumb: '홈 / 빠른 배정', init: () => AssignPage.init() },
-    schedule:  { title: '공정/일정', breadcrumb: '홈 / 공정·일정', init: () => SchedulePage.init() },
+
     export:    { title: '엑셀 관리', breadcrumb: '홈 / 엑셀 관리', init: () => ExportPage.init() },
   };
   let currentPage = 'dashboard';
@@ -110,17 +110,6 @@ const App = (() => {
     });
     if (assignData.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(assignData), '배정현황');
 
-    // 일정 시트
-    const schedData = DB.Schedules.getAll().map(s => {
-      const site = DB.Sites.getById(s.siteId);
-      return {
-        '현장명': site?.name || '', '공정명': s.name,
-        '시작일': s.startDate, '완료예정': s.endDate,
-        '진행률(%)': s.progress, '담당자': s.manager, '상태': s.status,
-      };
-    });
-    if (schedData.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(schedData), '공정일정');
-
     // 파일 저장
     const now = new Date();
     const fname = `현장관리_${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}.xlsx`;
@@ -130,7 +119,7 @@ const App = (() => {
     DB.ExportHistory.add({
       filename: fname,
       savedAt: now.toISOString(),
-      counts: `현장:${sitesData.length}, 직원:${staffData.length}, 배정:${assignData.length}, 일정:${schedData.length}`,
+      counts: `현장:${sitesData.length}, 직원:${staffData.length}, 배정:${assignData.length}`,
       operator: '관리자',
     });
 

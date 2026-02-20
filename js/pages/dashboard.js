@@ -2,7 +2,6 @@
  * dashboard.js - 대시보드 홈 페이지
  */
 const DashboardPage = (() => {
-  let progressChart = null;
   let assignChart = null;
 
   function init() {
@@ -16,7 +15,6 @@ const DashboardPage = (() => {
     const assignedCount = sites.filter(s => assignedSiteIds.has(s.id)).length;
     const unassignedCount = sites.filter(s => s.status !== '완료' && !assignedSiteIds.has(s.id)).length;
     const assignedStaffIds = new Set(assigns.map(a => a.staffId));
-    const avgProgress = sites.length ? Math.round(sites.reduce((s, c) => s + (c.progress || 0), 0) / sites.length) : 0;
 
     document.getElementById('stat-sites').textContent = sites.length;
     document.getElementById('stat-sites-active').textContent = `진행 ${activeSites}`;
@@ -24,44 +22,12 @@ const DashboardPage = (() => {
     document.getElementById('stat-staff-assigned').textContent = `배정 ${assignedStaffIds.size}명`;
     document.getElementById('stat-assigned').textContent = assignedCount;
     document.getElementById('stat-unassigned').textContent = `미배정 ${unassignedCount}`;
-    document.getElementById('stat-progress').textContent = avgProgress + '%';
-    document.getElementById('stat-ontime').textContent = `일정 준수`;
 
-    renderCharts(sites, assignedCount, unassignedCount);
+    renderCharts(assignedCount, unassignedCount);
     renderTable(sites);
   }
 
-  function renderCharts(sites, assignedCount, unassignedCount) {
-    // 공정 차트 (바)
-    const ctx1 = document.getElementById('progressChart');
-    if (!ctx1) return;
-    const labels = sites.slice(0, 6).map(s => s.name.length > 10 ? s.name.slice(0, 10) + '…' : s.name);
-    const data = sites.slice(0, 6).map(s => s.progress || 0);
-    const colors = data.map(v => v === 100 ? '#10b981' : v >= 70 ? '#4f46e5' : v >= 40 ? '#f59e0b' : '#ef4444');
-
-    if (progressChart) { progressChart.destroy(); progressChart = null; }
-    progressChart = new Chart(ctx1, {
-      type: 'bar',
-      data: {
-        labels,
-        datasets: [{
-          label: '공정률(%)',
-          data,
-          backgroundColor: colors,
-          borderRadius: 6,
-          borderSkipped: false,
-        }]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-          y: { beginAtZero: true, max: 100, grid: { color: '#f1f5f9' } },
-          x: { grid: { display: false } }
-        }
-      }
-    });
-
+  function renderCharts(assignedCount, unassignedCount) {
     // 배정 도넛 차트
     const ctx2 = document.getElementById('assignChart');
     if (!ctx2) return;

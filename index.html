@@ -37,9 +37,7 @@
           <span class="nav-icon">🔀</span><span class="nav-text">빠른 배정</span>
           <span class="badge" id="unassignedBadge">0</span>
         </a>
-        <a class="nav-item" data-page="schedule" href="#">
-          <span class="nav-icon">📅</span><span class="nav-text">공정/일정</span>
-        </a>
+
       </div>
       <div class="nav-section">
         <span class="nav-label">데이터</span>
@@ -104,26 +102,10 @@
             </div>
             <div class="stat-trend down" id="stat-unassigned">미배정 0</div>
           </div>
-          <div class="stat-card">
-            <div class="stat-icon" style="background: linear-gradient(135deg,#43e97b,#38f9d7)">📈</div>
-            <div class="stat-info">
-              <div class="stat-value" id="stat-progress">0%</div>
-              <div class="stat-label">평균 공정률</div>
-            </div>
-            <div class="stat-trend up" id="stat-ontime">일정 준수</div>
-          </div>
+
         </div>
 
-        <div class="charts-grid">
-          <div class="chart-card">
-            <div class="chart-header">
-              <h3>현장 공정 현황</h3>
-              <span class="chart-sub">공정별 진행률</span>
-            </div>
-            <div class="chart-wrap">
-              <canvas id="progressChart"></canvas>
-            </div>
-          </div>
+        <div class="charts-grid" style="grid-template-columns:1fr">
           <div class="chart-card">
             <div class="chart-header">
               <h3>배정 현황</h3>
@@ -274,39 +256,6 @@
         </div>
       </div>
 
-      <!-- 공정/일정 관리 페이지 -->
-      <div class="page hidden" id="page-schedule">
-        <div class="toolbar">
-          <div class="toolbar-left">
-            <select class="filter-select" id="scheduleSiteFilter">
-              <option value="">현장 선택</option>
-            </select>
-          </div>
-          <div class="toolbar-right">
-            <button class="btn btn-primary" onclick="SchedulePage.openModal()">+ 일정 추가</button>
-          </div>
-        </div>
-        <div class="gantt-wrapper">
-          <div class="table-card">
-            <div class="table-header">
-              <h3>공정 일정</h3>
-            </div>
-            <div class="table-scroll">
-              <table class="data-table">
-                <thead>
-                  <tr><th>현장명</th><th>공정명</th><th>시작일</th><th>완료예정</th><th>진행률</th><th>담당자</th><th>상태</th><th>액션</th></tr>
-                </thead>
-                <tbody id="scheduleTableBody"></tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-        <!-- 간트 차트 영역 -->
-        <div class="table-card" style="margin-top:20px">
-          <div class="table-header"><h3>간트 차트</h3></div>
-          <div class="gantt-chart" id="ganttChart"></div>
-        </div>
-      </div>
 
       <!-- 엑셀 관리 페이지 -->
       <div class="page hidden" id="page-export">
@@ -319,7 +268,7 @@
               <label class="checkbox-label"><input type="checkbox" id="exp-sites" checked /> 현장 목록</label>
               <label class="checkbox-label"><input type="checkbox" id="exp-staff" checked /> 소장/직원</label>
               <label class="checkbox-label"><input type="checkbox" id="exp-assign" checked /> 배정 현황</label>
-              <label class="checkbox-label"><input type="checkbox" id="exp-schedule" checked /> 공정/일정</label>
+
             </div>
             <button class="btn btn-primary btn-full" onclick="App.exportToExcel()">📊 엑셀로 저장</button>
           </div>
@@ -480,58 +429,6 @@
     </div>
   </div>
 
-  <!-- 모달: 일정 추가/수정 -->
-  <div class="modal-overlay hidden" id="scheduleModal">
-    <div class="modal">
-      <div class="modal-header">
-        <h3 id="scheduleModalTitle">일정 추가</h3>
-        <button class="modal-close" onclick="SchedulePage.closeModal()">✕</button>
-      </div>
-      <div class="modal-body">
-        <div class="form-grid">
-          <div class="form-group">
-            <label>현장 *</label>
-            <select id="sched-site"></select>
-          </div>
-          <div class="form-group">
-            <label>공정명 *</label>
-            <input type="text" id="sched-name" placeholder="공정명 입력" />
-          </div>
-          <div class="form-group">
-            <label>시작일 *</label>
-            <input type="date" id="sched-start" />
-          </div>
-          <div class="form-group">
-            <label>완료예정 *</label>
-            <input type="date" id="sched-end" />
-          </div>
-          <div class="form-group">
-            <label>담당자</label>
-            <input type="text" id="sched-manager" placeholder="담당자명" />
-          </div>
-          <div class="form-group">
-            <label>진행률 (%)</label>
-            <input type="range" id="sched-progress" min="0" max="100" value="0"
-              oninput="document.getElementById('sched-progress-val').textContent=this.value+'%'" />
-            <span id="sched-progress-val">0%</span>
-          </div>
-          <div class="form-group">
-            <label>상태</label>
-            <select id="sched-status">
-              <option value="예정">예정</option>
-              <option value="진행">진행</option>
-              <option value="완료">완료</option>
-              <option value="지연">지연</option>
-            </select>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-outline" onclick="SchedulePage.closeModal()">취소</button>
-        <button class="btn btn-primary" onclick="SchedulePage.saveSchedule()">저장</button>
-      </div>
-    </div>
-  </div>
 
   <!-- 토스트 알림 -->
   <div class="toast-container" id="toastContainer"></div>
@@ -542,7 +439,7 @@
   <script src="js/pages/sites.js"></script>
   <script src="js/pages/staff.js"></script>
   <script src="js/pages/assign.js"></script>
-  <script src="js/pages/schedule.js"></script>
+
   <script src="js/pages/export.js"></script>
 </body>
 </html>
