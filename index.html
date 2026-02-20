@@ -77,6 +77,28 @@
     <div class="page-container">
       <!-- 대시보드 페이지 -->
       <div class="page" id="page-dashboard">
+
+        <!-- RAG 통합 검색 -->
+        <div class="rag-search-wrap">
+          <div class="rag-search-box">
+            <span class="rag-search-icon">🔍</span>
+            <input type="text" id="ragSearchInput"
+              placeholder="현장명, 위치, 발주처, 소장, 건축사, 특이사항 등 자유롭게 검색…"
+              autocomplete="off" />
+            <button class="rag-clear-btn hidden" id="ragClearBtn">✕</button>
+          </div>
+          <div class="rag-search-hint">예: "강남 소장 김" &nbsp;/&nbsp; "민원" &nbsp;/&nbsp; "석면" &nbsp;/&nbsp; "판교로지스"</div>
+        </div>
+
+        <!-- 검색 결과 패널 -->
+        <div class="rag-results hidden" id="ragResults">
+          <div class="rag-results-header">
+            <span id="ragResultCount">0건</span> 검색됨 &nbsp;
+            <span class="rag-results-query" id="ragResultsQuery"></span>
+          </div>
+          <div id="ragResultsList"></div>
+        </div>
+
         <div class="stats-grid">
           <div class="stat-card">
             <div class="stat-icon" style="background: linear-gradient(135deg,#667eea,#764ba2)">🏗️</div>
