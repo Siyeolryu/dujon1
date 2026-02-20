@@ -118,12 +118,12 @@ const DB = (() => {
     const addDays = (d, n) => new Date(d.getTime() + n * 86400000);
 
     const siteData = [
-      { name: '강남 오피스텔 신축', location: '서울 강남구 역삼동', client: '(주)강남개발', amount: 85, startDate: fmt(addDays(today, -180)), endDate: fmt(addDays(today, 90)), progress: 67, status: '진행', note: '지하 3층 지상 15층' },
-      { name: '판교 물류센터 증축', location: '경기 성남시 판교동', client: '판교로지스', amount: 42, startDate: fmt(addDays(today, -90)), endDate: fmt(addDays(today, 120)), progress: 35, status: '진행', note: '' },
-      { name: '인천 공장 리모델링', location: '인천시 남동구 논현동', client: '인천제조(주)', amount: 28, startDate: fmt(addDays(today, -240)), endDate: fmt(addDays(today, 30)), progress: 88, status: '진행', note: '전기 설비 교체 포함' },
-      { name: '수원 아파트 단지', location: '경기 수원시 영통구', client: '수원주택공사', amount: 220, startDate: fmt(addDays(today, -30)), endDate: fmt(addDays(today, 540)), progress: 12, status: '진행', note: '5개동 400세대' },
-      { name: '부산 해운대 상가', location: '부산 해운대구 우동', client: '해운대부동산', amount: 55, startDate: fmt(addDays(today, 14)), endDate: fmt(addDays(today, 300)), progress: 0, status: '대기', note: '착공 준비 중' },
-      { name: '대전 역사 리모델링', location: '대전시 동구 중앙로', client: '코레일', amount: 38, startDate: fmt(addDays(today, -365)), endDate: fmt(addDays(today, -10)), progress: 100, status: '완료', note: '준공 완료' },
+      { name: '강남 오피스텔 신축', location: '서울 강남구 역삼동', client: '(주)강남개발', amount: 85, startDate: fmt(addDays(today, -180)), endDate: fmt(addDays(today, 90)), progress: 67, status: '진행', architect: '(주)강남건축사사무소', special: '', note: '지하 3층 지상 15층' },
+      { name: '판교 물류센터 증축', location: '경기 성남시 판교동', client: '판교로지스', amount: 42, startDate: fmt(addDays(today, -90)), endDate: fmt(addDays(today, 120)), progress: 35, status: '진행', architect: '판교종합건축', special: '중장비 반입 시 인근 아파트 민원 주의', note: '' },
+      { name: '인천 공장 리모델링', location: '인천시 남동구 논현동', client: '인천제조(주)', amount: 28, startDate: fmt(addDays(today, -240)), endDate: fmt(addDays(today, 30)), progress: 88, status: '진행', architect: '', special: '석면 자재 포함 — 철거 시 보호 장비 필수', note: '전기 설비 교체 포함' },
+      { name: '수원 아파트 단지', location: '경기 수원시 영통구', client: '수원주택공사', amount: 220, startDate: fmt(addDays(today, -30)), endDate: fmt(addDays(today, 540)), progress: 12, status: '진행', architect: '수원종합건축사사무소', special: '', note: '5개동 400세대' },
+      { name: '부산 해운대 상가', location: '부산 해운대구 우동', client: '해운대부동산', amount: 55, startDate: fmt(addDays(today, 14)), endDate: fmt(addDays(today, 300)), progress: 0, status: '대기', architect: '해운대건축디자인', special: '착공 전 문화재 조사 필요', note: '착공 준비 중' },
+      { name: '대전 역사 리모델링', location: '대전시 동구 중앙로', client: '코레일', amount: 38, startDate: fmt(addDays(today, -365)), endDate: fmt(addDays(today, -10)), progress: 100, status: '완료', architect: '(주)철도건축연구소', special: '', note: '준공 완료' },
     ];
     const sites = siteData.map(s => {
       const r = insert(KEYS.sites, s);

@@ -76,9 +76,10 @@ const App = (() => {
         return st ? `${st.name}(${st.role})` : '';
       }).filter(Boolean).join(', ');
       return {
-        '현장명': s.name, '위치': s.location, '발주처': s.client,
+        '현장명': s.name, '위치': s.location, '발주처': s.client, '건축사': s.architect || '',
         '공사금액(억)': s.amount, '착공일': s.startDate, '준공예정일': s.endDate,
-        '공정률(%)': s.progress, '상태': s.status, '배정소장': staffNames, '비고': s.note,
+        '공정률(%)': s.progress, '상태': s.status, '배정소장': staffNames,
+        '특이사항': s.special || '', '비고': s.note,
       };
     });
     if (sitesData.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(sitesData), '현장목록');

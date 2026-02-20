@@ -33,7 +33,7 @@ const SitesPage = (() => {
     if (!tbody) return;
 
     if (sites.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><div class="empty-state-icon">🏗️</div><p>현장이 없습니다. '+ 현장 추가'를 눌러 등록하세요.</p></div></td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="10"><div class="empty-state"><div class="empty-state-icon">🏗️</div><p>현장이 없습니다. '+ 현장 추가'를 눌러 등록하세요.</p></div></td></tr>`;
       return;
     }
 
@@ -45,9 +45,14 @@ const SitesPage = (() => {
       }).filter(Boolean).join(' ') || `<span style="color:var(--text-light)">미배정</span>`;
 
       return `<tr>
-        <td><strong>${s.name}</strong>${s.note ? `<br><small style="color:var(--text-muted)">${s.note}</small>` : ''}</td>
+        <td>
+          <strong>${s.name}</strong>
+          ${s.special ? `<br><small style="color:var(--warning)">⚠️ ${s.special}</small>` : ''}
+          ${s.note ? `<br><small style="color:var(--text-muted)">${s.note}</small>` : ''}
+        </td>
         <td style="color:var(--text-muted)">${s.location}</td>
         <td>${s.client || '-'}</td>
+        <td style="color:var(--text-muted)">${s.architect || '-'}</td>
         <td>${staffNames}</td>
         <td>
           <div class="progress-bar-wrap">
@@ -83,6 +88,8 @@ const SitesPage = (() => {
       document.getElementById('site-progress').value = s.progress || 0;
       document.getElementById('site-progress-val').textContent = (s.progress || 0) + '%';
       document.getElementById('site-status').value = s.status || '대기';
+      document.getElementById('site-architect').value = s.architect || '';
+      document.getElementById('site-special').value = s.special || '';
       document.getElementById('site-note').value = s.note || '';
     } else {
       document.getElementById('site-name').value = '';
@@ -94,6 +101,8 @@ const SitesPage = (() => {
       document.getElementById('site-progress').value = 0;
       document.getElementById('site-progress-val').textContent = '0%';
       document.getElementById('site-status').value = '대기';
+      document.getElementById('site-architect').value = '';
+      document.getElementById('site-special').value = '';
       document.getElementById('site-note').value = '';
     }
 
@@ -120,6 +129,8 @@ const SitesPage = (() => {
       endDate: document.getElementById('site-end').value,
       progress: parseInt(document.getElementById('site-progress').value) || 0,
       status: document.getElementById('site-status').value,
+      architect: document.getElementById('site-architect').value.trim(),
+      special: document.getElementById('site-special').value.trim(),
       note: document.getElementById('site-note').value.trim(),
     };
 

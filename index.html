@@ -175,7 +175,7 @@
             <table class="data-table" id="sitesTable">
               <thead>
                 <tr>
-                  <th>현장명</th><th>위치</th><th>발주처</th><th>소장</th>
+                  <th>현장명</th><th>위치</th><th>발주처</th><th>건축사</th><th>소장</th>
                   <th>공정률</th><th>상태</th><th>착공일</th><th>준공예정</th><th>액션</th>
                 </tr>
               </thead>
@@ -402,6 +402,14 @@
               <option value="완료">완료</option>
               <option value="중단">중단</option>
             </select>
+          </div>
+          <div class="form-group">
+            <label>건축사</label>
+            <input type="text" id="site-architect" placeholder="건축사명 입력" />
+          </div>
+          <div class="form-group full-width">
+            <label>특이사항</label>
+            <textarea id="site-special" placeholder="특이사항 입력 (안전 위험, 민원, 주의사항 등)" rows="2"></textarea>
           </div>
           <div class="form-group full-width">
             <label>비고</label>
