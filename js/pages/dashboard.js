@@ -60,7 +60,7 @@ const DashboardPage = (() => {
 
     const display = sites.slice(0, 8);
     if (display.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="empty-state-icon">🏗️</div><p>등록된 현장이 없습니다.</p></div></td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-state-icon">🏗️</div><p>등록된 현장이 없습니다.</p></div></td></tr>`;
       return;
     }
 
@@ -74,13 +74,9 @@ const DashboardPage = (() => {
       return `<tr>
         <td><strong>${s.name}</strong></td>
         <td style="color:var(--text-muted)">${s.location}</td>
+        <td style="color:var(--text-muted)">${s.architect || '-'}</td>
+        <td>${s.special ? `<span style="color:var(--warning)">⚠️ ${s.special}</span>` : `<span style="color:var(--text-light)">-</span>`}</td>
         <td>${staffNames}</td>
-        <td>
-          <div class="progress-bar-wrap">
-            <div class="progress-bar"><div class="progress-fill" style="width:${s.progress}%"></div></div>
-            <span class="progress-text">${s.progress}%</span>
-          </div>
-        </td>
         <td><span class="status-badge status-${s.status}">${s.status}</span></td>
         <td style="color:var(--text-muted)">${App.fmtDate(s.endDate)}</td>
       </tr>`;

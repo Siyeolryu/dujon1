@@ -126,7 +126,7 @@
             <table class="data-table" id="dashboardTable">
               <thead>
                 <tr>
-                  <th>현장명</th><th>위치</th><th>소장</th><th>공정률</th><th>상태</th><th>준공예정</th>
+                  <th>현장명</th><th>위치</th><th>건축사</th><th>특이사항</th><th>소장</th><th>상태</th><th>준공예정</th>
                 </tr>
               </thead>
               <tbody id="dashboardTableBody"></tbody>
@@ -158,7 +158,7 @@
               <thead>
                 <tr>
                   <th>현장명</th><th>위치</th><th>발주처</th><th>건축사</th><th>소장</th>
-                  <th>공정률</th><th>상태</th><th>착공일</th><th>준공예정</th><th>액션</th>
+                  <th>상태</th><th>착공일</th><th>준공예정</th><th>액션</th>
                 </tr>
               </thead>
               <tbody id="sitesTableBody"></tbody>
@@ -336,12 +336,6 @@
           <div class="form-group">
             <label>준공예정일</label>
             <input type="date" id="site-end" />
-          </div>
-          <div class="form-group">
-            <label>공정률 (%)</label>
-            <input type="range" id="site-progress" min="0" max="100" value="0"
-              oninput="document.getElementById('site-progress-val').textContent=this.value+'%'" />
-            <span id="site-progress-val">0%</span>
           </div>
           <div class="form-group">
             <label>상태</label>
